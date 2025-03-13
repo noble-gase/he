@@ -12,11 +12,11 @@ go get -u github.com/noble-gase/he
 
 #### 目前支持
 
-- [微信](https://github.com/noble-gase/he/src/main/wechat/)
-- [支付宝](https://github.com/noble-gase/he/src/main/alipay)
-- [E签宝](https://github.com/noble-gase/he/src/main/esign)
-- [银盛支付](https://github.com/noble-gase/he/src/main/ysepay)
-- [杉德支付](https://github.com/noble-gase/he/src/main/sandpay)
-- [蚂蚁联盟链](https://github.com/noble-gase/he/src/main/antchain)
+- [微信](https://github.com/noble-gase/he/tree/main/wechat)
+- [支付宝](https://github.com/noble-gase/he/tree/main/alipay)
+- [E签宝](https://github.com/noble-gase/he/tree/main/esign)
+- [银盛支付](https://github.com/noble-gase/he/tree/main/ysepay)
+- [杉德支付](https://github.com/noble-gase/he/tree/main/sandpay)
+- [蚂蚁联盟链](https://github.com/noble-gase/he/tree/main/antchain)
 
 **Enjoy 😊**
