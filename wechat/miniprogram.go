@@ -334,7 +334,7 @@ func (mp *MiniProgram) Code2Session(ctx context.Context, code string) (gjson.Res
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -354,7 +354,7 @@ func (mp *MiniProgram) AccessToken(ctx context.Context) (gjson.Result, error) {
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -382,7 +382,7 @@ func (mp *MiniProgram) StableAccessToken(ctx context.Context, forceRefresh bool)
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -470,7 +470,7 @@ func (mp *MiniProgram) GetJSON(ctx context.Context, path string, query url.Value
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -493,7 +493,7 @@ func (mp *MiniProgram) GetBuffer(ctx context.Context, path string, query url.Val
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -517,7 +517,7 @@ func (mp *MiniProgram) PostJSON(ctx context.Context, path string, params X) (gjs
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -541,7 +541,7 @@ func (mp *MiniProgram) PostBuffer(ctx context.Context, path string, params X) ([
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -565,7 +565,7 @@ func (mp *MiniProgram) SafePostJSON(ctx context.Context, path string, params X) 
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -589,7 +589,7 @@ func (mp *MiniProgram) SafePostBuffer(ctx context.Context, path string, params X
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -629,7 +629,7 @@ func (mp *MiniProgram) Upload(ctx context.Context, reqPath, fieldName, filePath 
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -669,7 +669,7 @@ func (mp *MiniProgram) UploadWithReader(ctx context.Context, reqPath, fieldName,
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }

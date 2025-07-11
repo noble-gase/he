@@ -140,7 +140,7 @@ func (oa *OfficialAccount) Code2OAuthToken(ctx context.Context, code string) (gj
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -160,7 +160,7 @@ func (oa *OfficialAccount) RefreshOAuthToken(ctx context.Context, refreshToken s
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -180,7 +180,7 @@ func (oa *OfficialAccount) AccessToken(ctx context.Context) (gjson.Result, error
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -208,7 +208,7 @@ func (oa *OfficialAccount) StableAccessToken(ctx context.Context, forceRefresh b
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -295,7 +295,7 @@ func (oa *OfficialAccount) GetJSON(ctx context.Context, path string, query url.V
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -319,7 +319,7 @@ func (oa *OfficialAccount) PostJSON(ctx context.Context, path string, params X) 
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -342,7 +342,7 @@ func (oa *OfficialAccount) GetBuffer(ctx context.Context, path string, query url
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -366,7 +366,7 @@ func (oa *OfficialAccount) PostBuffer(ctx context.Context, path string, params X
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -406,7 +406,7 @@ func (oa *OfficialAccount) Upload(ctx context.Context, reqPath, fieldName, fileP
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -446,7 +446,7 @@ func (oa *OfficialAccount) UploadWithReader(ctx context.Context, reqPath, fieldN
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }

@@ -123,7 +123,7 @@ func (c *Corp) AccessToken(ctx context.Context) (gjson.Result, error) {
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -185,7 +185,7 @@ func (c *Corp) GetJSON(ctx context.Context, path string, query url.Values) (gjso
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -209,7 +209,7 @@ func (c *Corp) PostJSON(ctx context.Context, path string, params X) (gjson.Resul
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -232,7 +232,7 @@ func (c *Corp) GetBuffer(ctx context.Context, path string, query url.Values) ([]
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -256,7 +256,7 @@ func (c *Corp) PostBuffer(ctx context.Context, path string, params X) ([]byte, e
 
 	ret := gjson.ParseBytes(b)
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return nil, fmt.Errorf("%d | %s", code, ret.Get("errmsg").String())
+		return nil, fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String())
 	}
 	return b, nil
 }
@@ -296,7 +296,7 @@ func (c *Corp) Upload(ctx context.Context, reqPath, fieldName, filePath string, 
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }
@@ -336,7 +336,7 @@ func (c *Corp) UploadWithReader(ctx context.Context, reqPath, fieldName, fileNam
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errcode").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("errmsg").String()))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("errmsg").String()))
 	}
 	return ret, nil
 }

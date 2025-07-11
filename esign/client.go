@@ -110,7 +110,7 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("code").Int(); code != 0 {
-		return internal.Fail(fmt.Errorf("%d | %s", code, ret.Get("message")))
+		return internal.Fail(fmt.Errorf("[%d] %s", code, ret.Get("message")))
 	}
 	return ret.Get("data"), nil
 }
@@ -160,7 +160,7 @@ func (c *Client) doStream(ctx context.Context, uploadURL string, reader io.ReadS
 
 	ret := gjson.ParseBytes(resp.Body())
 	if code := ret.Get("errCode").Int(); code != 0 {
-		return fmt.Errorf("%d | %s", code, ret.Get("msg"))
+		return fmt.Errorf("[%d] %s", code, ret.Get("msg"))
 	}
 	return nil
 }
