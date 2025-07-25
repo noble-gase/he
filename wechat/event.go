@@ -26,7 +26,7 @@ func SignWithSHA1(token string, items ...string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// EventEncrypt 时间消息加密
+// EventEncrypt 事件消息加密
 //
 //	[参考](https://developer.work.weixin.qq.com/document/path/90968)
 func EventEncrypt(receiveID, encodingAESKey, nonce string, plainText []byte) (*crypts.CipherText, error) {
