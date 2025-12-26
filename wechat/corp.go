@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -419,6 +420,22 @@ func NewCorp(corpid, secret string, options ...CorpOption) *Corp {
 	}
 	for _, f := range options {
 		f(c)
+	}
+	if c.logger == nil {
+		c.logger = func(ctx context.Context, err error, data map[string]string) {
+			level := slog.LevelInfo
+
+			attrs := make([]slog.Attr, 0, len(data))
+			for k, v := range data {
+				attrs = append(attrs, slog.String(k, v))
+			}
+			if err != nil {
+				level = slog.LevelError
+				attrs = append(attrs, slog.Any("error", err))
+			}
+
+			slog.LogAttrs(ctx, level, "[wechat] [corp] request log", attrs...)
+		}
 	}
 	return c
 }

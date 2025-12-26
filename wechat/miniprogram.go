@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -797,6 +798,22 @@ func NewMiniProgram(appid, secret string, options ...MPOption) *MiniProgram {
 	}
 	for _, f := range options {
 		f(mp)
+	}
+	if mp.logger == nil {
+		mp.logger = func(ctx context.Context, err error, data map[string]string) {
+			level := slog.LevelInfo
+
+			attrs := make([]slog.Attr, 0, len(data))
+			for k, v := range data {
+				attrs = append(attrs, slog.String(k, v))
+			}
+			if err != nil {
+				level = slog.LevelError
+				attrs = append(attrs, slog.Any("error", err))
+			}
+
+			slog.LogAttrs(ctx, level, "[wechat] [miniprogram] request log", attrs...)
+		}
 	}
 	return mp
 }

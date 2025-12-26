@@ -27,7 +27,7 @@ func NonceByte(size uint) []byte {
 }
 
 // MarshalNoEscapeHTML 不带HTML转义的JSON序列化
-func MarshalNoEscapeHTML(v interface{}) ([]byte, error) {
+func MarshalNoEscapeHTML(v any) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
 
 	encoder := json.NewEncoder(buf)
