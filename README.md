@@ -12,13 +12,22 @@ go get -u github.com/noble-gase/he
 
 #### 目前支持
 
-| 模块     | 说明                                                              |
-| -------- | ----------------------------------------------------------------- |
-| wechat   | [微信](https://github.com/noble-gase/he/tree/main/wechat)         |
-| alipay   | [支付宝](https://github.com/noble-gase/he/tree/main/alipay)       |
-| esign    | [E签宝](https://github.com/noble-gase/he/tree/main/esign)         |
-| ysepay   | [银盛支付](https://github.com/noble-gase/he/tree/main/ysepay)     |
-| sandpay  | [杉德支付](https://github.com/noble-gase/he/tree/main/sandpay)    |
-| antchain | [蚂蚁联盟链](https://github.com/noble-gase/he/tree/main/antchain) |
+- 支付宝
+  - 2.0 API
+  - 3.0 API
+- 微信
+  - 支付
+    - v2 API
+    - v3 API
+  - 小程序
+  - 公众号
+  - 企业微信
+- 钉钉
+  - 旧版API
+  - 新版API
+- E签宝
+- 蚂蚁联盟链
+
+> JSON 结果均以 `gjson.Result` 返回，理论上支持所有 JSON API
 
 **Enjoy 😊**

@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/noble-gase/he/internal/values"
+	"github.com/noble-gase/he/internal/kvkit"
 )
 
 type signfields struct {
@@ -15,8 +15,8 @@ type signfields struct {
 	contMD5  string
 	contType string
 	date     string
-	headers  V
-	params   V
+	headers  KV
+	params   KV
 }
 
 // SignOption 签名选项
@@ -96,14 +96,14 @@ func (s *Signer) String() string {
 }
 
 // NewSigner 返回新的签名器
-func NewSigner(method, path string, options ...SignOption) *Signer {
+func NewSigner(method, path string, opts ...SignOption) *Signer {
 	fields := &signfields{
 		accept:  "*/*",
-		headers: make(V),
-		params:  make(V),
+		headers: make(KV),
+		params:  make(KV),
 	}
 
-	for _, f := range options {
+	for _, f := range opts {
 		f(fields)
 	}
 
@@ -129,7 +129,7 @@ func NewSigner(method, path string, options ...SignOption) *Signer {
 
 	if len(fields.params) != 0 {
 		buf.WriteString("?")
-		buf.WriteString(fields.params.Encode("=", "&", values.WithEmptyMode(values.EmptyOnlyKey)))
+		buf.WriteString(fields.params.Encode("=", "&", kvkit.WithEmptyMode(kvkit.EmptyOnlyKey)))
 	}
 
 	return &Signer{str: buf.String()}

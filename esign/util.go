@@ -3,13 +3,16 @@ package esign
 import (
 	"crypto/md5"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"os"
 
-	"github.com/noble-gase/he/internal/values"
+	"github.com/noble-gase/he/internal"
+	"github.com/noble-gase/he/internal/kvkit"
+	"github.com/tidwall/gjson"
 )
 
-type V = values.V
+type KV = kvkit.KV
 
 type X map[string]any
 
@@ -32,7 +35,6 @@ const (
 func ContentMD5(b []byte) string {
 	h := md5.New()
 	h.Write(b)
-
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
@@ -50,4 +52,20 @@ func FileMD5(filename string) (string, int64) {
 		return err.Error(), -1
 	}
 	return base64.StdEncoding.EncodeToString(h.Sum(nil)), n
+}
+
+func Result(b []byte) (gjson.Result, error) {
+	ret := gjson.ParseBytes(b)
+	if code := ret.Get("code").Int(); code != 0 {
+		return internal.FailF("%d | %s", code, ret.Get("message"))
+	}
+	return ret.Get("data"), nil
+}
+
+func ErrFromStream(b []byte) error {
+	ret := gjson.ParseBytes(b)
+	if code := ret.Get("errCode").Int(); code != 0 {
+		return fmt.Errorf("%d | %s", code, ret.Get("msg"))
+	}
+	return nil
 }

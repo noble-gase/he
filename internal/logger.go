@@ -13,7 +13,7 @@ type ReqLog struct {
 	data map[string]string
 }
 
-// Set 设置日志K-V
+// Set 设置日志K-KV
 func (l *ReqLog) Set(k, v string) {
 	l.data[k] = v
 }
@@ -24,22 +24,28 @@ func (l *ReqLog) SetError(err error) {
 
 // SetReqHeader 设置请求头
 func (l *ReqLog) SetReqHeader(h http.Header) {
-	l.data["request_header"] = HeaderEncode(h)
+	if len(h) == 0 {
+		return
+	}
+	l.data["req_header"] = HeaderEncode(h)
 }
 
 // SetBody 设置请求Body
-func (l *ReqLog) SetReqBody(v string) {
-	l.data["request_body"] = v
+func (l *ReqLog) SetReqBody(b []byte) {
+	if b == nil {
+		return
+	}
+	l.data["req_body"] = string(b)
 }
 
 // SetRespHeader 设置返回头
 func (l *ReqLog) SetRespHeader(h http.Header) {
-	l.data["response_header"] = HeaderEncode(h)
+	l.data["resp_header"] = HeaderEncode(h)
 }
 
 // SetResp 设置返回报文
-func (l *ReqLog) SetRespBody(v string) {
-	l.data["response_body"] = v
+func (l *ReqLog) SetRespBody(b []byte) {
+	l.data["resp_body"] = string(b)
 }
 
 // SetStatusCode 设置HTTP状态码
@@ -68,14 +74,12 @@ func NewReqLog(method, reqURL string) *ReqLog {
 func HeaderEncode(h http.Header) string {
 	var buf strings.Builder
 	for k, vals := range h {
-		for _, v := range vals {
-			if buf.Len() > 0 {
-				buf.WriteString("&")
-			}
-			buf.WriteString(k)
-			buf.WriteString("=")
-			buf.WriteString(v)
+		if buf.Len() > 0 {
+			buf.WriteString(";")
 		}
+		buf.WriteString(k)
+		buf.WriteString("=")
+		buf.WriteString(strings.Join(vals, ","))
 	}
 	return buf.String()
 }

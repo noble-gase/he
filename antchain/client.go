@@ -5,8 +5,8 @@ import (
 	"crypto"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,50 +16,17 @@ import (
 	"github.com/tidwall/gjson"
 
 	"github.com/noble-gase/he/internal"
-	"github.com/noble-gase/he/internal/crypts"
+	"github.com/noble-gase/he/internal/cryptokit"
 )
 
 // Config 客户端配置
 type Config struct {
-	BizID      string             `json:"biz_id"`      // 链ID (a00e36c5)
-	TenantID   string             `json:"tenant_id"`   // 租户ID
-	AccessID   string             `json:"access_id"`   // AccessID
-	AccessKey  *crypts.PrivateKey `json:"access_key"`  // AccessKey
-	Account    string             `json:"account"`     // 链账户
-	MyKmsKeyID string             `json:"mykmskey_id"` // 托管标识
-}
-
-// Client 发送请求使用的客户端
-type Client interface {
-	// CreateAccount 创建账户
-	CreateAccount(ctx context.Context, account, kmsID string, gas int) (string, error)
-
-	// Deposit 存证
-	Deposit(ctx context.Context, content string, gas int) (string, error)
-
-	// DeploySolidity 部署Solidity合约
-	DeploySolidity(ctx context.Context, name, code string, gas int) (string, error)
-
-	// AsyncCallSolidity 异步调用Solidity合约
-	AsyncCallSolidity(ctx context.Context, contractName, methodSign, inputParams, outTypes string, gas int) (string, error)
-
-	// QueryTransaction 查询交易
-	QueryTransaction(ctx context.Context, hash string) (string, error)
-
-	// QueryReceipt 查询交易回执
-	QueryReceipt(ctx context.Context, hash string) (string, error)
-
-	// QueryBlockHeader 查询块头
-	QueryBlockHeader(ctx context.Context, blockNumber int64) (string, error)
-
-	// QueryBlockBody 查询块体
-	QueryBlockBody(ctx context.Context, blockNumber int64) (string, error)
-
-	// QueryLastBlock 查询最新块高
-	QueryLastBlock(ctx context.Context) (string, error)
-
-	// QueryAccount 查询账户
-	QueryAccount(ctx context.Context, account string) (string, error)
+	BizID      string                `json:"biz_id"`      // 链ID (a00e36c5)
+	TenantID   string                `json:"tenant_id"`   // 租户ID
+	AccessID   string                `json:"access_id"`   // AccessID
+	AccessKey  *cryptokit.PrivateKey `json:"access_key"`  // AccessKey
+	Account    string                `json:"account"`     // 链账户
+	MyKmsKeyID string                `json:"mykmskey_id"` // 托管标识
 }
 
 // ChainCallOption 链调用选项
@@ -71,14 +38,25 @@ func WithParam(key string, value any) ChainCallOption {
 	}
 }
 
-type client struct {
+// Client 蚂蚁联盟链客户端
+type Client struct {
 	endpoint string
 	config   *Config
-	httpCli  *resty.Client
-	logger   func(ctx context.Context, err error, data map[string]string)
+
+	client *resty.Client
+
+	logger func(ctx context.Context, err error, data map[string]string)
 }
 
-func (c *client) shakehand(ctx context.Context) (string, error) {
+func (c *Client) SetHttpClient(cli *http.Client) {
+	c.client = resty.NewWithClient(cli)
+}
+
+func (c *Client) SetLogger(fn func(ctx context.Context, err error, data map[string]string)) {
+	c.logger = fn
+}
+
+func (c *Client) shakehand(ctx context.Context) (string, error) {
 	timeStr := strconv.FormatInt(time.Now().UnixMilli(), 10)
 
 	sign, err := c.config.AccessKey.Sign(crypto.SHA256, []byte(c.config.AccessID+timeStr))
@@ -91,10 +69,10 @@ func (c *client) shakehand(ctx context.Context) (string, error) {
 		"time":     timeStr,
 		"secret":   hex.EncodeToString(sign),
 	}
-	return c.do(ctx, c.endpoint+SHAKE_HAND, params)
+	return c.do(ctx, c.endpoint+SHAKE_HAND, nil, params)
 }
 
-func (c *client) chainCall(ctx context.Context, method string, options ...ChainCallOption) (string, error) {
+func (c *Client) chainCall(ctx context.Context, method string, options ...ChainCallOption) (string, error) {
 	token, err := c.shakehand(ctx)
 	if err != nil {
 		return "", err
@@ -109,10 +87,10 @@ func (c *client) chainCall(ctx context.Context, method string, options ...ChainC
 	params["method"] = method
 	params["token"] = token
 
-	return c.do(ctx, c.endpoint+CHAIN_CALL, params)
+	return c.do(ctx, c.endpoint+CHAIN_CALL, nil, params)
 }
 
-func (c *client) chainCallForBiz(ctx context.Context, method string, options ...ChainCallOption) (string, error) {
+func (c *Client) chainCallForBiz(ctx context.Context, method string, options ...ChainCallOption) (string, error) {
 	token, err := c.shakehand(ctx)
 	if err != nil {
 		return "", err
@@ -131,21 +109,22 @@ func (c *client) chainCallForBiz(ctx context.Context, method string, options ...
 	params["tenantid"] = c.config.TenantID
 	params["token"] = token
 
-	return c.do(ctx, c.endpoint+CHAIN_CALL_FOR_BIZ, params)
+	return c.do(ctx, c.endpoint+CHAIN_CALL_FOR_BIZ, nil, params)
 }
 
-func (c *client) do(ctx context.Context, reqURL string, params X) (string, error) {
+func (c *Client) do(ctx context.Context, reqURL string, header http.Header, params X) (string, error) {
+	body, err := json.Marshal(params)
+	if err != nil {
+		return "", err
+	}
+
 	log := internal.NewReqLog(http.MethodPost, reqURL)
 	defer log.Do(ctx, c.logger)
 
-	body, err := json.Marshal(params)
-	if err != nil {
-		log.SetError(err)
-		return "", err
-	}
-	log.SetReqBody(string(body))
+	log.SetReqHeader(header)
+	log.SetReqBody(body)
 
-	resp, err := c.httpCli.R().
+	resp, err := c.client.R().
 		SetContext(ctx).
 		SetHeader(internal.HeaderContentType, internal.ContentJSON).
 		SetBody(body).
@@ -154,11 +133,13 @@ func (c *client) do(ctx context.Context, reqURL string, params X) (string, error
 		log.SetError(err)
 		return "", err
 	}
+
 	log.SetRespHeader(resp.Header())
 	log.SetStatusCode(resp.StatusCode())
-	log.SetRespBody(string(resp.Body()))
+	log.SetRespBody(resp.Body())
+
 	if !resp.IsSuccess() {
-		return "", fmt.Errorf("HTTP Request Error, StatusCode = %d", resp.StatusCode())
+		return "", errors.New(resp.Status())
 	}
 
 	ret := gjson.ParseBytes(resp.Body())
@@ -168,48 +149,11 @@ func (c *client) do(ctx context.Context, reqURL string, params X) (string, error
 	return ret.Get("data").String(), nil
 }
 
-// Option 自定义设置项
-type Option func(c *client)
-
-// WithHttpClient 设置自定义 HTTP Client
-func WithHttpClient(cli *http.Client) Option {
-	return func(c *client) {
-		c.httpCli = resty.NewWithClient(cli)
-	}
-}
-
-// WithLogger 设置日志记录
-func WithLogger(fn func(ctx context.Context, err error, data map[string]string)) Option {
-	return func(c *client) {
-		c.logger = fn
-	}
-}
-
 // NewClient 生成蚂蚁联盟链客户端
-func NewClient(cfg *Config, options ...Option) Client {
-	c := &client{
+func NewClient(cfg *Config) *Client {
+	return &Client{
 		endpoint: "https://rest.baas.alipay.com",
 		config:   cfg,
-		httpCli:  internal.NewClient(),
+		client:   internal.NewClient(),
 	}
-	for _, f := range options {
-		f(c)
-	}
-	if c.logger == nil {
-		c.logger = func(ctx context.Context, err error, data map[string]string) {
-			level := slog.LevelInfo
-
-			attrs := make([]slog.Attr, 0, len(data))
-			for k, v := range data {
-				attrs = append(attrs, slog.String(k, v))
-			}
-			if err != nil {
-				level = slog.LevelError
-				attrs = append(attrs, slog.Any("error", err))
-			}
-
-			slog.LogAttrs(ctx, level, "[antchain] request log", attrs...)
-		}
-	}
-	return c
 }
