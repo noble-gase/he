@@ -16,6 +16,8 @@ import (
 )
 
 // SignWithSHA1 事件消息sha1签名
+//
+//	[参考](https://dingtalk.apifox.cn/doc-392311)
 func SignWithSHA1(token string, items ...string) string {
 	items = append(items, token)
 	sort.Strings(items)
@@ -29,8 +31,8 @@ func SignWithSHA1(token string, items ...string) string {
 
 // Encrypt 事件消息加密
 //
-//	[参考](https://developer.work.weixin.qq.com/document/path/90968)
-func Encrypt(appid, encodingAESKey, nonce string, plainText []byte) (*cryptokit.CipherText, error) {
+//	[参考](https://dingtalk.apifox.cn/doc-392311)
+func Encrypt(appkey, encodingAESKey, nonce string, plainText []byte) (*cryptokit.CipherText, error) {
 	key, err := base64.StdEncoding.DecodeString(encodingAESKey + "=")
 	if err != nil {
 		return nil, err
@@ -39,20 +41,20 @@ func Encrypt(appid, encodingAESKey, nonce string, plainText []byte) (*cryptokit.
 	contentLen := len(plainText)
 	appidOffset := 20 + contentLen
 
-	encryptData := make([]byte, appidOffset+len(appid))
+	encryptData := make([]byte, appidOffset+len(appkey))
 
 	copy(encryptData[:16], nonce)
 	copy(encryptData[16:20], internal.EncodeUint32ToBytes(uint32(contentLen)))
 	copy(encryptData[20:], plainText)
-	copy(encryptData[appidOffset:], appid)
+	copy(encryptData[appidOffset:], appkey)
 
 	return cryptokit.AESEncryptCBC(key, key[:aes.BlockSize], encryptData)
 }
 
 // Decrypt 事件消息解密
 //
-//	[参考](https://developer.work.weixin.qq.com/document/path/90968)
-func Decrypt(appid, encodingAESKey, cipherText string) ([]byte, error) {
+//	[参考](https://dingtalk.apifox.cn/doc-392311)
+func Decrypt(appkey, encodingAESKey, cipherText string) ([]byte, error) {
 	key, err := base64.StdEncoding.DecodeString(encodingAESKey + "=")
 	if err != nil {
 		return nil, err
@@ -68,19 +70,19 @@ func Decrypt(appid, encodingAESKey, cipherText string) ([]byte, error) {
 		return nil, err
 	}
 
-	// 校验 receiveid
-	appidOffset := len(plainText) - len([]byte(appid))
-	if v := string(plainText[appidOffset:]); v != appid {
-		return nil, fmt.Errorf("receive_id mismatch, want: %s, got: %s", appid, v)
+	// 校验 appkey
+	appidOffset := len(plainText) - len([]byte(appkey))
+	if v := string(plainText[appidOffset:]); v != appkey {
+		return nil, fmt.Errorf("appkey mismatch, want: %s, got: %s", appkey, v)
 	}
 	return plainText[20:appidOffset], nil
 }
 
-func Reply(appid, token, encodingAESKey, msg string) (kvkit.KV, error) {
+func Reply(appkey, token, encodingAESKey, msg string) (kvkit.KV, error) {
 	nonce := internal.Nonce(16)
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 
-	ct, err := Encrypt(appid, encodingAESKey, nonce, []byte(msg))
+	ct, err := Encrypt(appkey, encodingAESKey, nonce, []byte(msg))
 	if err != nil {
 		return nil, err
 	}
@@ -88,9 +90,9 @@ func Reply(appid, token, encodingAESKey, msg string) (kvkit.KV, error) {
 	encryptMsg := ct.String()
 
 	return kvkit.KV{
-		"Encrypt":      encryptMsg,
-		"MsgSignature": SignWithSHA1(token, timestamp, nonce, encryptMsg),
-		"TimeStamp":    timestamp,
-		"Nonce":        nonce,
+		"encrypt":       encryptMsg,
+		"msg_signature": SignWithSHA1(token, timestamp, nonce, encryptMsg),
+		"timeStamp":     timestamp,
+		"nonce":         nonce,
 	}, nil
 }

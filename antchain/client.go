@@ -30,10 +30,10 @@ type Config struct {
 }
 
 // ChainCallOption 链调用选项
-type ChainCallOption func(params X)
+type ChainCallOption func(params internal.X)
 
 func WithParam(key string, value any) ChainCallOption {
-	return func(params X) {
+	return func(params internal.X) {
 		params[key] = value
 	}
 }
@@ -64,7 +64,7 @@ func (c *Client) shakehand(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	params := X{
+	params := internal.X{
 		"accessId": c.config.AccessID,
 		"time":     timeStr,
 		"secret":   hex.EncodeToString(sign),
@@ -78,7 +78,7 @@ func (c *Client) chainCall(ctx context.Context, method string, options ...ChainC
 		return "", err
 	}
 
-	params := X{}
+	params := internal.X{}
 	for _, f := range options {
 		f(params)
 	}
@@ -96,7 +96,7 @@ func (c *Client) chainCallForBiz(ctx context.Context, method string, options ...
 		return "", err
 	}
 
-	params := X{}
+	params := internal.X{}
 	for _, f := range options {
 		f(params)
 	}
@@ -112,7 +112,7 @@ func (c *Client) chainCallForBiz(ctx context.Context, method string, options ...
 	return c.do(ctx, c.endpoint+CHAIN_CALL_FOR_BIZ, nil, params)
 }
 
-func (c *Client) do(ctx context.Context, reqURL string, header http.Header, params X) (string, error) {
+func (c *Client) do(ctx context.Context, reqURL string, header http.Header, params internal.X) (string, error) {
 	body, err := json.Marshal(params)
 	if err != nil {
 		return "", err

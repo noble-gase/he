@@ -8,13 +8,8 @@ import (
 	"os"
 
 	"github.com/noble-gase/he/internal"
-	"github.com/noble-gase/he/internal/kvkit"
 	"github.com/tidwall/gjson"
 )
-
-type KV = kvkit.KV
-
-type X map[string]any
 
 const (
 	HeaderContentMD5           = "Content-MD5"

@@ -15,8 +15,8 @@ type signfields struct {
 	contMD5  string
 	contType string
 	date     string
-	headers  KV
-	params   KV
+	headers  kvkit.KV
+	params   kvkit.KV
 }
 
 // SignOption 签名选项
@@ -99,8 +99,8 @@ func (s *Signer) String() string {
 func NewSigner(method, path string, opts ...SignOption) *Signer {
 	fields := &signfields{
 		accept:  "*/*",
-		headers: make(KV),
-		params:  make(KV),
+		headers: make(kvkit.KV),
+		params:  make(kvkit.KV),
 	}
 
 	for _, f := range opts {

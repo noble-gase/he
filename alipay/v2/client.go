@@ -85,15 +85,15 @@ func (c *Client) SetLogger(fn func(ctx context.Context, err error, data map[stri
 func (c *Client) R(method string) *Request {
 	return &Request{
 		method:  method,
-		options: make(KV),
-		form:    make(KV),
+		options: make(kvkit.KV),
+		form:    make(kvkit.KV),
 
 		client: c,
 	}
 }
 
 // do 向支付宝网关发送请求
-func (c *Client) do(ctx context.Context, method string, header http.Header, options, biz KV) (gjson.Result, error) {
+func (c *Client) do(ctx context.Context, method string, header http.Header, options, biz kvkit.KV) (gjson.Result, error) {
 	common, hash, err := c.buildCommon(method, options, biz)
 	if err != nil {
 		return internal.FailE(err)
@@ -127,7 +127,7 @@ func (c *Client) do(ctx context.Context, method string, header http.Header, opti
 	return c.parseResponse(c.respkey(method), resp.Body(), hash)
 }
 
-func (c *Client) upload(ctx context.Context, method string, header http.Header, options KV, files []*resty.MultipartField, biz KV) (gjson.Result, error) {
+func (c *Client) upload(ctx context.Context, method string, header http.Header, options kvkit.KV, files []*resty.MultipartField, biz kvkit.KV) (gjson.Result, error) {
 	common, hash, err := c.buildCommon(method, options, biz)
 	if err != nil {
 		return internal.FailE(err)
@@ -162,8 +162,8 @@ func (c *Client) upload(ctx context.Context, method string, header http.Header, 
 	return c.parseResponse(c.respkey(method), resp.Body(), hash)
 }
 
-func (c *Client) buildCommon(method string, options, biz KV) (KV, crypto.Hash, error) {
-	common := KV{}
+func (c *Client) buildCommon(method string, options, biz kvkit.KV) (kvkit.KV, crypto.Hash, error) {
+	common := kvkit.KV{}
 
 	// 公共必填参数
 	common.Set("app_id", c.appid)
@@ -228,12 +228,12 @@ func (c *Client) parseResponse(key string, body []byte, hash crypto.Hash) (gjson
 	return gjson.ParseBytes(data), nil
 }
 
-func (c *Client) sign(common, biz KV) (string, crypto.Hash, error) {
+func (c *Client) sign(common, biz kvkit.KV) (string, crypto.Hash, error) {
 	if c.prvKey == nil {
 		return "", 0, errors.New("missing private key (forgotten configure?)")
 	}
 
-	kv := KV{}
+	kv := kvkit.KV{}
 
 	for k, v := range common {
 		kv.Set(k, v)
@@ -299,7 +299,7 @@ func (c *Client) VerifyNotify(form url.Values) error {
 		return err
 	}
 
-	v := KV{}
+	v := kvkit.KV{}
 	for key, vals := range form {
 		if key == "sign_type" || key == "sign" || len(vals) == 0 {
 			continue

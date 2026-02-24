@@ -16,7 +16,7 @@ type Request struct {
 	path   string
 	header http.Header
 	query  url.Values
-	body   X
+	body   internal.X
 	files  []*resty.MultipartField
 
 	client *Client
@@ -49,7 +49,7 @@ func (r *Request) SetFile(param, filename string, reader io.Reader) *Request {
 }
 
 // SetBody 设置JSON请求Body 或 文件上传data
-func (r *Request) SetBody(body X) *Request {
+func (r *Request) SetBody(body internal.X) *Request {
 	r.body = body
 	return r
 }

@@ -13,7 +13,7 @@ import (
 type Request struct {
 	header http.Header
 	query  url.Values
-	body   X
+	body   internal.X
 	stream io.ReadSeeker
 
 	client *Client
@@ -42,7 +42,7 @@ func (r *Request) SetStream(reader io.ReadSeeker) *Request {
 }
 
 // SetBody 设置请求Body 或 文件上传data
-func (r *Request) SetBody(body X) *Request {
+func (r *Request) SetBody(body internal.X) *Request {
 	r.body = body
 	return r
 }

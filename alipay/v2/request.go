@@ -12,16 +12,17 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/noble-gase/he/internal"
+	"github.com/noble-gase/he/internal/kvkit"
 	"github.com/tidwall/gjson"
 )
 
 type Request struct {
 	method  string
-	options KV
-	content X
+	options kvkit.KV
+	content internal.X
 
 	files []*resty.MultipartField
-	form  KV
+	form  kvkit.KV
 
 	client *Client
 }
@@ -63,13 +64,13 @@ func (r *Request) SetAppAuthToken(token string) *Request {
 }
 
 // SetBizJSON 设置业务参数（biz_content）
-func (r *Request) SetBizJSON(data X) *Request {
+func (r *Request) SetBizJSON(data internal.X) *Request {
 	r.content = data
 	return r
 }
 
 // SetBizForm 设置业务参数，如：上传表单参数
-func (r *Request) SetBizForm(form KV) *Request {
+func (r *Request) SetBizForm(form kvkit.KV) *Request {
 	r.form = form
 	return r
 }
@@ -84,8 +85,8 @@ func (r *Request) SetFile(param, filename string, reader io.Reader) *Request {
 	return r
 }
 
-func (r *Request) buildBizKV() (KV, error) {
-	biz := KV{}
+func (r *Request) buildBizKV() (kvkit.KV, error) {
+	biz := kvkit.KV{}
 
 	for k, v := range r.form {
 		biz.Set(k, v)

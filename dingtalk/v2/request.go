@@ -8,14 +8,15 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/noble-gase/he/internal"
+	"github.com/noble-gase/he/internal/kvkit"
 	"github.com/tidwall/gjson"
 )
 
 type Request struct {
 	header http.Header
 	query  url.Values
-	body   X
-	form   KV
+	body   internal.X
+	form   kvkit.KV
 	files  []*resty.MultipartField
 
 	client *Client
@@ -38,7 +39,7 @@ func (r *Request) SetQuery(k string, vs ...string) *Request {
 }
 
 // SetBody 设置JSON请求Body
-func (r *Request) SetBody(body X) *Request {
+func (r *Request) SetBody(body internal.X) *Request {
 	r.body = body
 	return r
 }

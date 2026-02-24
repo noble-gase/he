@@ -3,15 +3,10 @@ package v2
 import (
 	"fmt"
 
-	"github.com/noble-gase/he/internal/kvkit"
 	"github.com/tidwall/gjson"
 )
 
 const CodeOK = "10000" // API请求成功
-
-type KV = kvkit.KV
-
-type X map[string]any
 
 type GrantType string
 

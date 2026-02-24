@@ -66,7 +66,7 @@ func (c *Client) url(path string, query url.Values) string {
 	return builder.String()
 }
 
-func (c *Client) do(ctx context.Context, method, path string, header http.Header, query url.Values, params X) ([]byte, error) {
+func (c *Client) do(ctx context.Context, method, path string, header http.Header, query url.Values, params internal.X) ([]byte, error) {
 	signOpts := make([]SignOption, 0)
 	if len(query) != 0 {
 		signOpts = append(signOpts, WithSignValues(query))

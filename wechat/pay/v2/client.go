@@ -100,7 +100,6 @@ func (c *Client) url(path string, query url.Values) string {
 		builder.WriteString("?")
 		builder.WriteString(query.Encode())
 	}
-
 	return builder.String()
 }
 

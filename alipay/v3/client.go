@@ -107,11 +107,10 @@ func (c *Client) url(path string, query url.Values) string {
 		builder.WriteString("?")
 		builder.WriteString(query.Encode())
 	}
-
 	return builder.String()
 }
 
-func (c *Client) do(ctx context.Context, method, path string, header http.Header, query url.Values, bizdata X) ([]byte, error) {
+func (c *Client) do(ctx context.Context, method, path string, header http.Header, query url.Values, bizdata internal.X) ([]byte, error) {
 	var (
 		body []byte
 		err  error
@@ -163,7 +162,7 @@ func (c *Client) do(ctx context.Context, method, path string, header http.Header
 	return resp.Body(), nil
 }
 
-func (c *Client) docrypto(ctx context.Context, method, path string, header http.Header, query url.Values, bizdata X) ([]byte, error) {
+func (c *Client) docrypto(ctx context.Context, method, path string, header http.Header, query url.Values, bizdata internal.X) ([]byte, error) {
 	var (
 		body   []byte
 		cipher string
@@ -230,7 +229,7 @@ func (c *Client) docrypto(ctx context.Context, method, path string, header http.
 	return decrypt, nil
 }
 
-func (c *Client) upload(ctx context.Context, path string, header http.Header, query url.Values, files []*resty.MultipartField, bizdata X) ([]byte, error) {
+func (c *Client) upload(ctx context.Context, path string, header http.Header, query url.Values, files []*resty.MultipartField, bizdata internal.X) ([]byte, error) {
 	var (
 		data []byte
 		err  error
@@ -387,7 +386,7 @@ func (c *Client) VerifyNotify(form url.Values) error {
 		return err
 	}
 
-	v := KV{}
+	v := kvkit.KV{}
 	for key, vals := range form {
 		if key == "sign_type" || key == "sign" || len(vals) == 0 {
 			continue

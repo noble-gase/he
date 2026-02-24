@@ -89,7 +89,6 @@ func (c *Client) url(path string, query url.Values) string {
 		builder.WriteString("?")
 		builder.WriteString(query.Encode())
 	}
-
 	return builder.String()
 }
 
@@ -301,7 +300,7 @@ func (c *Client) DecodeEventMsg(encrypt string) ([]byte, error) {
 //
 //	根据配置的数据格式，输出 XML/JSON
 //	[参考](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Message_encryption_and_decryption_instructions.html)
-func (c *Client) EncodeEventReply(msg KV) (KV, error) {
+func (c *Client) EncodeEventReply(msg string) (KV, error) {
 	if len(c.srvCfg.token) == 0 || len(c.srvCfg.aeskey) == 0 {
 		return nil, errors.New("missing server config (forgotten configure?)")
 	}

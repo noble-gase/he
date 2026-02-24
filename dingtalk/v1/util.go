@@ -2,15 +2,10 @@ package v1
 
 import (
 	"github.com/noble-gase/he/internal"
-	"github.com/noble-gase/he/internal/kvkit"
 	"github.com/tidwall/gjson"
 )
 
 const AccessToken = "access_token"
-
-type X = internal.X
-
-type KV = kvkit.KV
 
 func result(b []byte) (gjson.Result, error) {
 	ret := gjson.ParseBytes(b)
