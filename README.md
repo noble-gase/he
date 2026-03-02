@@ -30,6 +30,6 @@ go get -u github.com/noble-gase/he
 
 > JSON 结果均以 `gjson.Result` 返回，理论上支持所有 JSON API
 >
-> 钉钉-事件订阅-Stream推送，请使用 [dingtalk-stream-sdk-go](https://github.com/open-dingtalk/dingtalk-stream-sdk-go)
+> 钉钉-事件订阅-Stream模式，请使用 [dingtalk-stream-sdk-go](https://github.com/open-dingtalk/dingtalk-stream-sdk-go)
 
 **Enjoy 😊**
